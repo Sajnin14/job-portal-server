@@ -28,6 +28,7 @@ async function run() {
 
     const database = client.db("JobDB");
     const jobCollection = database.collection("jobs");
+    const jobApplicationCollection = database.collection("jobs-application");
 
     app.get('/jobs', async(req, res) => {
         const query = jobCollection.find();
@@ -40,6 +41,32 @@ async function run() {
        const query = {_id: ObjectId(jobId)};
        const result = await jobCollection.findOne(query);
        res.send(result);
+    })
+
+    // for applicant
+    app.get('/job-application', async(req, res) => {
+      const email = req.query.email;
+      const query = {applicant_email: email};
+      const result = await jobApplicationCollection.find(query).toArray();
+
+      for(const application of result){
+        console.log(application.job_id);
+        const query1 = {_id: ObjectId(application.job_id)}
+       const job = await jobCollection.findOne(query1);
+       if(job){
+        application.title = job.title;
+        application.company = job.company;
+        application.company_logo = job.company_logo;
+       }
+      }
+      res.send(result);
+    })
+
+    app.post('/job-application', async(req, res) => {
+      const applicationBody = req.body;
+      const result = await jobApplicationCollection.insertOne(applicationBody);
+      res.send(result);
+
     })
 
     // Send a ping to confirm a successful connection
