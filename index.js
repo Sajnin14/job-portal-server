@@ -30,6 +30,8 @@ async function run() {
     const jobCollection = database.collection("jobs");
     const jobApplicationCollection = database.collection("jobs-application");
 
+    // apis for jobs
+
     app.get('/jobs', async(req, res) => {
         const query = jobCollection.find();
         const result = await query.toArray();
@@ -41,6 +43,12 @@ async function run() {
        const query = {_id: ObjectId(jobId)};
        const result = await jobCollection.findOne(query);
        res.send(result);
+    })
+
+    app.post('/jobs', async(req, res) => {
+      const jobBody = req.body;
+      const result = await jobCollection.insertOne(jobBody);
+      res.send(result);
     })
 
     // for applicant
